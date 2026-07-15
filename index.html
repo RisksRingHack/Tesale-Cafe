@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ServQuick - POS with Customer SMS Gateway</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-[#f4f6f9] h-screen flex flex-col overflow-hidden text-gray-800 relative">
+
+    <header class="bg-[#1e293b] text-white h-16 flex items-center justify-between px-4 shrink-0 shadow-md">
+        <div class="flex items-center space-x-4">
+            <button class="text-gray-300 hover:text-white text-xl">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="flex items-center space-x-2">
+                <div class="bg-blue-500 text-white rounded-full p-1.5 w-8 h-8 flex items-center justify-center font-bold text-xs">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+                <div>
+                    <div class="text-[10px] text-gray-400 leading-none">GoFrugal</div>
+                    <div class="text-base font-semibold tracking-wide leading-none">ServQuick</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-1 max-w-xl mx-8">
+            <div class="relative">
+                <input type="text" id="searchInput" placeholder="Search menu item..." 
+                    class="w-full bg-white/10 text-white placeholder-gray-400 rounded px-4 py-1.5 text-sm outline-none focus:bg-white focus:text-gray-900 focus:placeholder-gray-400 transition-all">
+                <i class="fa-solid fa-magnifying-glass absolute right-3 top-2.5 text-gray-400 pointer-events-none text-xs"></i>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-6">
+            <button class="relative text-gray-300 hover:text-white">
+                <i class="fa-regular fa-bell text-lg"></i>
+                <span class="absolute -top-1 -right-1 bg-red-500 w-2 h-2 rounded-full"></span>
+            </button>
+            <div class="flex items-center space-x-1 cursor-pointer group">
+                <div class="w-8 h-8 rounded-full bg-gray-500 flex items-center justify-center overflow-hidden border border-gray-400">
+                    <i class="fa-solid fa-user text-white text-base"></i>
+                </div>
+                <i class="fa-solid fa-caret-down text-gray-400 group-hover:text-white text-xs pl-1"></i>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        
+        <aside class="w-16 bg-white border-r border-gray-200 flex flex-col items-center py-4 space-y-6 shrink-0 shadow-sm">
+            <button class="text-blue-600 bg-blue-50 w-12 h-12 rounded-lg flex items-center justify-center transition-all">
+                <i class="fa-solid fa-house text-lg"></i>
+            </button>
+            <button class="text-gray-400 hover:text-gray-600 w-12 h-12 flex items-center justify-center">
+                <i class="fa-regular fa-file-lines text-xl"></i>
+            </button>
+            <button class="text-gray-400 hover:text-gray-600 w-12 h-12 flex items-center justify-center">
+                <i class="fa-solid fa-boxes-stacked text-lg"></i>
+            </button>
+            <button class="text-gray-400 hover:text-gray-600 w-12 h-12 flex items-center justify-center">
+                <i class="fa-solid fa-cart-shopping text-lg"></i>
+            </button>
+            <button class="text-gray-400 hover:text-gray-600 w-12 h-12 flex items-center justify-center">
+                <i class="fa-solid fa-utensils text-lg"></i>
+            </button>
+        </aside>
+
+        <main class="flex-1 flex flex-col p-4 overflow-hidden">
+            
+            <div class="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 px-2 py-1.5 mb-4 shrink-0">
+                <button class="text-gray-400 px-2 hover:text-gray-600"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                <div class="flex flex-1 overflow-x-auto no-scrollbar space-x-1 text-sm font-medium text-gray-500">
+                    <button onclick="filterCategory('Tea & Coffee')" class="cat-btn px-4 py-1.5 rounded-md text-blue-600 bg-blue-50 font-semibold transition-all whitespace-nowrap">Tea & Coffee</button>
+                    <button onclick="filterCategory('Beverages & Shakes')" class="cat-btn px-4 py-1.5 rounded-md hover:bg-gray-50 transition-all whitespace-nowrap">Beverages & Shakes</button>
+                    <button onclick="filterCategory('Momos & Snacks')" class="cat-btn px-4 py-1.5 rounded-md hover:bg-gray-50 transition-all whitespace-nowrap">Momos & Snacks</button>
+                    <button onclick="filterCategory('Burgers & Sandwiches')" class="cat-btn px-4 py-1.5 rounded-md hover:bg-gray-50 transition-all whitespace-nowrap">Burgers & Sandwiches</button>
+                    <button onclick="filterCategory('Noodles & Thukpa')" class="cat-btn px-4 py-1.5 rounded-md hover:bg-gray-50 transition-all whitespace-nowrap">Noodles & Thukpa</button>
+                </div>
+                <button class="text-gray-400 px-2 hover:text-gray-600"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto pr-1">
+                <div id="menuGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-4">
+                    </div>
+            </div>
+        </main>
+
+        <aside class="w-80 bg-white border-l border-gray-200 flex flex-col justify-between shrink-0 shadow-xl">
+            <div class="p-4 flex flex-col flex-1 overflow-hidden">
+                <div class="bg-[#1e293b] text-white font-medium px-4 py-2 rounded text-base mb-3 flex justify-between items-center shadow-sm">
+                    <span>Dine-in</span>
+                    <span id="activeTableBadge" class="text-xs bg-blue-500 px-2 py-0.5 rounded">Table: 2</span>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <button onclick="openCustomerModal()" class="border border-gray-200 hover:bg-gray-50 rounded py-1.5 text-xs font-medium text-gray-700 flex items-center justify-center space-x-1.5">
+                        <i class="fa-solid fa-chair text-gray-500"></i>
+                        <span id="btnTableName">Table 2</span>
+                    </button>
+                    <button onclick="openCustomerModal()" class="border border-gray-200 hover:bg-gray-50 rounded py-1.5 text-xs font-medium text-gray-700 flex items-center justify-center space-x-1.5">
+                        <i class="fa-solid fa-user-plus text-gray-500"></i>
+                        <span id="btnCustomerName">Bishal</span>
+                    </button>
+                </div>
+
+                <div id="cartList" class="flex-1 overflow-y-auto space-y-4 pr-1 no-scrollbar">
+                    </div>
+            </div>
+
+            <div class="border-t border-gray-200 bg-gray-50 p-4 shrink-0">
+                <div class="space-y-1.5 text-sm text-gray-500 pb-4">
+                    <div class="flex justify-between">
+                        <span>Sub Total</span>
+                        <span id="summarySubtotal" class="font-medium text-gray-800">₹0.00</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>CGST/SGST (5%)</span>
+                        <span id="summaryTax" class="font-medium text-gray-800">₹0.00</span>
+                    </div>
+                    <hr class="border-gray-200 my-1">
+                    <div class="flex justify-between text-base font-bold text-gray-900">
+                        <span>Grand Total</span>
+                        <span id="summaryTotal">₹0.00</span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="text-xs font-semibold text-gray-600 mb-2">Payment Method</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="setPaymentMethod('UPI')" id="payBtnUPI" class="w-full border border-blue-200 bg-blue-50 hover:bg-blue-100 rounded-lg py-2 text-xs font-semibold text-blue-700 flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-qrcode"></i>
+                            <span>UPI</span>
+                        </button>
+                        <button type="button" onclick="setPaymentMethod('Card')" id="payBtnCard" class="w-full border border-gray-200 bg-white hover:bg-gray-50 rounded-lg py-2 text-xs font-semibold text-gray-700 flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-credit-card"></i>
+                            <span>Card</span>
+                        </button>
+                    </div>
+                    <div class="mt-2 text-[10px] text-gray-500">Bill will include the selected method.</div>
+                </div>
+
+                <button onclick="proceedToKitchen()" class="w-full bg-[#4a90e2] hover:bg-blue-600 text-white font-semibold py-3 rounded-lg shadow-md tracking-wide transition-all flex items-center justify-center space-x-2">
+                    <span>Confirm Order & Send SMS</span>
+                </button>
+
+            </div>
+        </aside>
+    </div>
+
+    <div id="customerModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-xl shadow-xl w-96 p-6 space-y-4">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="text-lg font-bold text-gray-900">Customer & Table Details</h3>
+                <button onclick="closeCustomerModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Customer Name</label>
+                    <input type="text" id="custNameInput" value="Bishal" class="w-full border rounded p-2 text-sm outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Mobile Number (for SMS Updates)</label>
+                    <input type="tel" id="custPhoneInput" value="+91 98765 43210" class="w-full border rounded p-2 text-sm outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Table Number</label>
+                    <input type="number" id="custTableInput" value="2" class="w-full border rounded p-2 text-sm outline-none focus:border-blue-500">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="closeCustomerModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-4 py-2 rounded text-xs">Cancel</button>
+                <button onclick="saveCustomerDetails()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded text-xs">Save Details</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="smsNotificationOverlay" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center hidden">
+        <div class="bg-black p-4 rounded-[40px] shadow-2xl border-4 border-gray-800 w-80 h-[560px] relative flex flex-col overflow-hidden">
+
+
+            <div class="absolute top-2 left-1/2 -translate-x-1/2 w-24 h-4 bg-black rounded-b-xl z-20 flex justify-center items-center">
+                <div class="w-12 h-1 bg-gray-700 rounded-full"></div>
+            </div>
+            <div class="bg-[#1e1e1e] flex-1 rounded-[32px] overflow-hidden p-3 pt-6 flex flex-col justify-between text-white">
+                <div class="flex justify-between items-center text-[10px] text-gray-400 px-2">
+                    <span>9:04 PM</span>
+                    <div class="space-x-1">
+                        <i class="fa-solid fa-signal"></i>
+                        <i class="fa-solid fa-wifi"></i>
+                        <i class="fa-solid fa-battery-three-quarters"></i>
+                    </div>
+                </div>
+                
+                <div class="text-center py-2 border-b border-gray-800 flex items-center justify-center space-x-2">
+                    <div class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-bold">TCC</div>
+                    <span class="text-xs font-bold tracking-wide text-gray-200">Tresale Corner Café</span>
+                </div>
+
+                <div class="flex-1 py-4 flex flex-col justify-end overflow-y-auto no-scrollbar">
+                    <div class="bg-[#2d2d2e] rounded-2xl p-3 text-xs text-gray-200 shadow max-w-[95%] leading-relaxed">
+                        <div class="font-bold text-blue-400 mb-1">📩 ORDER CONFIRMED!</div>
+                        <p id="smsMessageContent" class="whitespace-pre-line"></p>
+                    </div>
+                    <span class="text-[9px] text-gray-500 mt-1 pl-2">Just now • Via Mobile SMS</span>
+                </div>
+
+                <button onclick="closeSMSView()" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold py-2 rounded-xl mb-1 shadow transition-all">
+                    Dismiss Notification
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bill Print Modal -->
+    <div id="billPrintModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center hidden">
+        <div class="bg-white w-[420px] max-w-[90vw] rounded-xl shadow-2xl overflow-hidden">
+            <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                <div>
+                    <div class="text-sm font-bold text-gray-900">Bill</div>
+                    <div class="text-[10px] text-gray-500">ServQuick • Dine-in</div>
+                </div>
+                <button type="button" onclick="closeBillPrintModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-4">
+                <div class="flex justify-between text-xs text-gray-600">
+                    <span>Date/Time</span>
+                    <span id="billTime" class="font-semibold text-gray-900"></span>
+                </div>
+                <div class="mt-2 flex justify-between text-xs text-gray-600">
+                    <span>Customer</span>
+                    <span id="billCustomer" class="font-semibold text-gray-900"></span>
+                </div>
+                <div class="mt-2 flex justify-between text-xs text-gray-600">
+                    <span>Table</span>
+                    <span id="billTable" class="font-semibold text-gray-900"></span>
+                </div>
+                <div class="mt-2 flex justify-between text-xs text-gray-600">
+                    <span>Payment</span>
+                    <span id="billPaymentMethod" class="font-semibold text-gray-900"></span>
+                </div>
+
+                <div class="mt-4">
+                    <div class="text-xs font-bold text-gray-900 mb-2">Items</div>
+                    <div id="billItemsWrap" class="text-xs text-gray-800"></div>
+                </div>
+
+                <div class="mt-3 border-t border-gray-200 pt-3">
+                    <div class="flex justify-between text-xs text-gray-600">
+                        <span>Sub Total</span>
+                        <span id="billSubtotal" class="font-semibold text-gray-900"></span>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-600 mt-1">
+                        <span>CGST/SGST (5%)</span>
+                        <span id="billTax" class="font-semibold text-gray-900"></span>
+                    </div>
+                    <div class="flex justify-between text-sm font-bold text-gray-900 mt-2">
+                        <span>Grand Total</span>
+                        <span id="billTotal"></span>
+                    </div>
+                </div>
+
+                <div class="mt-3 text-[10px] text-gray-500">
+                    Thank you for dining at Tresale Corner Café!
+                </div>
+            </div>
+
+            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 flex gap-2">
+                <button type="button" onclick="printBill()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2 rounded-lg">
+                    Print Bill
+                </button>
+                <button type="button" onclick="closeBillPrintModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-semibold py-2 rounded-lg">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        const menuItems = [
+            // Tea & Coffee
+            { id: 1, name: 'Black Tea', price: 30.00, category: 'Tea & Coffee', image: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=200' },
+            { id: 2, name: 'Masala Tea', price: 40.00, category: 'Tea & Coffee', image: 'https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?w=200' },
+            { id: 3, name: 'Ginger Tea', price: 40.00, category: 'Tea & Coffee', image: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=200' },
+            { id: 4, name: 'Lemon Tea', price: 50.00, category: 'Tea & Coffee', image: 'https://images.unsplash.com/photo-1513534006091-a672922119d2?w=200' },
+            { id: 5, name: 'Green Tea', price: 60.00, category: 'Tea & Coffee', image: 'https://images.unsplash.com/photo-1627435601361-ec25f5b1d0e5?w=200' },
+            { id: 6, name: 'Elaichai Tea', price: 60.00, category: 'Tea & Coffee', image: 'https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?w=200' },
+            { id: 7, name: 'Black coffee', price: 40.00, category: 'Tea & Coffee', image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=200' },
+            { id: 8, name: 'Classic Milk Coffee', price: 50.00, category: 'Tea & Coffee', image: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=200' },
+            { id: 9, name: 'Vanilla Coffee', price: 70.00, category: 'Tea & Coffee', image: 'https://images.unsplash.com/photo-1570968915860-54d5c301fc9f?w=200' },
+            { id: 10, name: 'Butter Scotch Coffee', price: 70.00, category: 'Tea & Coffee', image: 'https://images.unsplash.com/photo-1570968915860-54d5c301fc9f?w=200' },
+            { id: 11, name: 'Hazelnut Coffee', price: 70.00, category: 'Tea & Coffee', image: 'https://images.unsplash.com/photo-1570968915860-54d5c301fc9f?w=200' },
+            { id: 12, name: 'Classic Cold Coffee', price: 60.00, category: 'Tea & Coffee', image: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=200' },
+            { id: 13, name: 'Vanilla Cold Coffee', price: 80.00, category: 'Tea & Coffee', image: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=200' },
+            { id: 14, name: 'Butter Scotch Cold Coffee', price: 80.00, category: 'Tea & Coffee', image: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=200' },
+            { id: 15, name: 'Hazelnut Cold Coffee', price: 85.00, category: 'Tea & Coffee', image: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=200' },
+            { id: 16, name: 'Vanilla Cold Coffee c Ice-Cream', price: 110.00, category: 'Tea & Coffee', image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=200' },
+            { id: 17, name: 'Butter Scotch Cold Coffee c Ice-Cream', price: 110.00, category: 'Tea & Coffee', image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=200' },
+
+            // Beverages & Shakes
+            { id: 18, name: 'Chocolate Milkshake', price: 100.00, category: 'Beverages & Shakes', image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=200' },
+            { id: 19, name: 'Banana Milkshake', price: 100.00, category: 'Beverages & Shakes', image: 'https://images.unsplash.com/photo-1553787499-6f9133860275?w=200' },
+            { id: 20, name: 'Strawberry Milkshake', price: 120.00, category: 'Beverages & Shakes', image: 'https://images.unsplash.com/photo-1553177595-4de2bb0842b9?w=200' },
+            { id: 21, name: 'Oreo Milkshake', price: 120.00, category: 'Beverages & Shakes', image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=200' },
+            { id: 22, name: 'Hazelnut Milkshake', price: 120.00, category: 'Beverages & Shakes', image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=200' },
+            { id: 23, name: 'Black Current Shake', price: 120.00, category: 'Beverages & Shakes', image: 'https://images.unsplash.com/photo-1553177595-4de2bb0842b9?w=200' },
+            { id: 24, name: 'Blue Lagoon', price: 110.00, category: 'Beverages & Shakes', image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=200' },
+            { id: 25, name: 'Virgin Mint Mojito', price: 110.00, category: 'Beverages & Shakes', image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=200' },
+            { id: 26, name: 'Pineapple Mojito', price: 110.00, category: 'Beverages & Shakes', image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=200' },
+            { id: 27, name: 'Shikanji', price: 120.00, category: 'Beverages & Shakes', image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=200' },
+            { id: 28, name: 'Fruit Beer Mojito', price: 120.00, category: 'Beverages & Shakes', image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=200' },
+            { id: 29, name: 'Sweet and Salty Soda', price: 80.00, category: 'Beverages & Shakes', image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=200' },
+            { id: 30, name: 'Lassi', price: 70.00, category: 'Beverages & Shakes', image: 'https://images.unsplash.com/photo-1553787499-6f9133860275?w=200' },
+            { id: 31, name: 'Masala Coke', price: 70.00, category: 'Beverages & Shakes', image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200' },
+            { id: 32, name: 'Coca-Cola / Sprite / Fanta', price: 40.00, category: 'Beverages & Shakes', image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200' },
+            { id: 33, name: 'Mineral Water', price: 20.00, category: 'Beverages & Shakes', image: 'https://images.unsplash.com/photo-1608889174637-3c44f6326f1a?w=200' },
+
+            // Momos & Snacks
+            { id: 34, name: 'Veg Steam Momo (8pcs)', price: 80.00, category: 'Momos & Snacks', image: 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=200' },
+            { id: 35, name: 'Chicken Steam Momo (8pcs)', price: 100.00, category: 'Momos & Snacks', image: 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=200' },
+            { id: 36, name: 'Veg Fried Momo (8pcs)', price: 100.00, category: 'Momos & Snacks', image: 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=200' },
+            { id: 37, name: 'Chicken Fried Momo (8pcs)', price: 120.00, category: 'Momos & Snacks', image: 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=200' },
+            { id: 38, name: 'Veg Peri Peri Fried Momo (8pcs)', price: 110.00, category: 'Momos & Snacks', image: 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=200' },
+            { id: 39, name: 'Chicken Peri Peri Fried Momo', price: 130.00, category: 'Momos & Snacks', image: 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=200' },
+            { id: 40, name: 'Veg Chilli Garlic Momo (8pcs)', price: 140.00, category: 'Momos & Snacks', image: 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=200' },
+            { id: 41, name: 'Chicken Chilli Garlic Momo Fried', price: 150.00, category: 'Momos & Snacks', image: 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=200' },
+            { id: 42, name: 'French Fries Salted', price: 80.00, category: 'Momos & Snacks', image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=200' },
+            { id: 43, name: 'Peri Peri French Fries', price: 90.00, category: 'Momos & Snacks', image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=200' },
+            { id: 44, name: 'Honey Chilli French Fries', price: 120.00, category: 'Momos & Snacks', image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=200' },
+            { id: 45, name: 'Veg Spring Roll', price: 100.00, category: 'Momos & Snacks', image: 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=200' },
+            { id: 46, name: 'Chicken Spring Roll', price: 130.00, category: 'Momos & Snacks', image: 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=200' },
+            { id: 47, name: 'Crispy Peri Peri Wings (6 pcs)', price: 150.00, category: 'Momos & Snacks', image: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=200' },
+            { id: 48, name: 'Chicken Lollipop (6 pcs)', price: 150.00, category: 'Momos & Snacks', image: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=200' },
+            { id: 49, name: 'Barbecue Wings (6 pcs)', price: 150.00, category: 'Momos & Snacks', image: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=200' },
+            { id: 50, name: 'Chicken pakora (10 pcs)', price: 120.00, category: 'Momos & Snacks', image: 'https://images.unsplash.com/photo-1562967914-608f82629710?w=200' },
+
+            // Burgers & Sandwiches
+            { id: 51, name: 'Alu Tiki Burger', price: 80.00, category: 'Burgers & Sandwiches', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200' },
+            { id: 52, name: 'Veg Patty Burger', price: 90.00, category: 'Burgers & Sandwiches', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200' },
+            { id: 53, name: 'Omelette Burger', price: 90.00, category: 'Burgers & Sandwiches', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200' },
+            { id: 54, name: 'Omelette Cheesy Burger', price: 110.00, category: 'Burgers & Sandwiches', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200' },
+            { id: 55, name: 'Veg Cheesy Patty Burger', price: 110.00, category: 'Burgers & Sandwiches', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200' },
+            { id: 56, name: 'Alu Tiki Cheesy Burger', price: 100.00, category: 'Burgers & Sandwiches', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200' },
+            { id: 57, name: 'Crispy Chicken Burger', price: 110.00, category: 'Burgers & Sandwiches', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200' },
+            { id: 58, name: 'Crispy Cheesy Chicken Burger', price: 120.00, category: 'Burgers & Sandwiches', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200' },
+            { id: 59, name: 'Veg Sandwich', price: 60.00, category: 'Burgers & Sandwiches', image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=200' },
+            { id: 60, name: 'Veg Cheese Sandwich', price: 80.00, category: 'Burgers & Sandwiches', image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=200' },
+            { id: 61, name: 'Chicken Sandwich', price: 100.00, category: 'Burgers & Sandwiches', image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=200' },
+            { id: 62, name: 'Chicken Cheese Sandwich', price: 120.00, category: 'Burgers & Sandwiches', image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=200' },
+            { id: 63, name: 'Veg Club Sandwich', price: 135.00, category: 'Burgers & Sandwiches', image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=200' },
+            { id: 64, name: 'Chicken Club Sandwich', price: 150.00, category: 'Burgers & Sandwiches', image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=200' },
+
+            // Noodles & Thukpa
+            { id: 65, name: 'Alu Mimi', price: 60.00, category: 'Noodles & Thukpa', image: 'https://images.unsplash.com/photo-1552611052-33e04de081de?w=200' },
+            { id: 66, name: 'Alu Thukpa', price: 70.00, category: 'Noodles & Thukpa', image: 'https://images.unsplash.com/photo-1552611052-33e04de081de?w=200' },
+            { id: 67, name: 'Veg Chowmein', price: 80.00, category: 'Noodles & Thukpa', image: 'https://images.unsplash.com/photo-1552611052-33e04de081de?w=200' },
+            { id: 68, name: 'Egg Chowmein', price: 100.00, category: 'Noodles & Thukpa', image: 'https://images.unsplash.com/photo-1552611052-33e04de081de?w=200' },
+            { id: 69, name: 'Chicken Chowmein', price: 120.00, category: 'Noodles & Thukpa', image: 'https://images.unsplash.com/photo-1552611052-33e04de081de?w=200' }
+        ];
+
+        // Default state values 
+        let cart = [];
+        let customerProfile = { name: "Bishal", phone: "+91 98765 43210", table: "2" };
+        let currentFilter = 'Tea & Coffee';
+        let searchQuery = '';
+
+        // UI Grid Builder
+        function renderMenu() {
+            const grid = document.getElementById('menuGrid');
+            grid.innerHTML = '';
+            
+            const filtered = menuItems.filter(item => {
+                const matchesCategory = (item.category === currentFilter);
+                const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchesCategory && matchesSearch;
+            });
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm flex flex-col justify-between hover:shadow-md transition-all cursor-pointer group";
+                card.onclick = () => addToCart(item);
+                card.innerHTML = `
+                    <div class="p-4 flex flex-col items-center flex-1">
+                        <div class="h-24 w-24 flex items-center justify-center overflow-hidden mb-3">
+                            <img src="${item.image}" alt="${item.name}" class="object-cover h-full w-full rounded-md group-hover:scale-105 transition-all duration-300">
+                        </div>
+                        <h3 class="text-xs font-semibold text-center text-gray-800 line-clamp-2">${item.name}</h3>
+                    </div>
+                    <div class="bg-[#2a3649] text-white text-center py-1.5 font-semibold text-xs tracking-wide">
+                        ₹${item.price.toFixed(2)}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Live Calculating Logic Modules 
+        function renderCart() {
+            const container = document.getElementById('cartList');
+            container.innerHTML = '';
+            let subtotal = 0;
+
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+
+                const cartRow = document.createElement('div');
+                cartRow.className = "flex items-start justify-between border-b border-gray-100 pb-3";
+                cartRow.innerHTML = `
+                    <div class="flex-1 min-w-0 pr-2">
+                        <h4 class="text-xs font-semibold text-gray-700 truncate">${item.name}</h4>
+                        <span class="text-[10px] text-gray-400 font-medium">Standard</span>
+                    </div>
+                    <div class="flex items-center space-x-2 shrink-0">
+                        <button onclick="changeQty(${index}, -1)" class="text-gray-400 hover:text-blue-500 border border-gray-200 rounded w-5 h-5 flex items-center justify-center text-xs font-bold">-</button>
+                        <span class="text-xs font-semibold text-gray-800 w-4 text-center">${item.quantity}</span>
+                        <button onclick="changeQty(${index}, 1)" class="text-gray-400 hover:text-blue-500 border border-gray-200 rounded w-5 h-5 flex items-center justify-center text-xs font-bold">+</button>
+                    </div>
+                    <div class="w-20 text-right shrink-0 text-xs font-bold text-gray-700">
+                        ₹${itemTotal.toFixed(2)}
+                    </div>
+                `;
+                container.appendChild(cartRow);
+            });
+
+            const tax = subtotal * 0.05; 
+            const grandTotal = subtotal + tax;
+
+            document.getElementById('summarySubtotal').innerText = `₹${subtotal.toFixed(2)}`;
+            document.getElementById('summaryTax').innerText = `₹${tax.toFixed(2)}`;
+            document.getElementById('summaryTotal').innerText = `₹${grandTotal.toFixed(2)}`;
+        }
+
+        function addToCart(product) {
+            const existingIndex = cart.findIndex(item => item.id === product.id);
+            if (existingIndex > -1) {
+                cart[existingIndex].quantity += 1;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+            renderCart();
+        }
+
+        function changeQty(index, delta) {
+            cart[index].quantity += delta;
+            if (cart[index].quantity <= 0) {
+                cart.splice(index, 1);
+            }
+            renderCart();
+        }
+
+        function filterCategory(catName) {
+            currentFilter = catName;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                if (btn.innerText.trim() === catName) {
+                    btn.className = "cat-btn px-4 py-1.5 rounded-md text-blue-600 bg-blue-50 font-semibold transition-all whitespace-nowrap";
+                } else {
+                    btn.className = "cat-btn px-4 py-1.5 rounded-md text-gray-500 hover:bg-gray-50 transition-all whitespace-nowrap";
+                }
+            });
+            renderMenu();
+        }
+
+        // Customer Modal System Triggers
+        function openCustomerModal() { document.getElementById('customerModal').classList.remove('hidden'); }
+        function closeCustomerModal() { document.getElementById('customerModal').classList.add('hidden'); }
+        
+        function saveCustomerDetails() {
+            customerProfile.name = document.getElementById('custNameInput').value || "Bishal";
+            customerProfile.phone = document.getElementById('custPhoneInput').value || "N/A";
+            customerProfile.table = document.getElementById('custTableInput').value || "2";
+
+            document.getElementById('activeTableBadge').innerText = `Table: ${customerProfile.table}`;
+            document.getElementById('btnTableName').innerText = `Table ${customerProfile.table}`;
+            document.getElementById('btnCustomerName').innerText = customerProfile.name;
+            closeCustomerModal();
+        }
+
+        // SMS Generator Timeline Pipeline
+        async function proceedToKitchen() {
+            if (cart.length === 0) {
+                alert("Please add items to the cart before checkout.");
+                return;
+            }
+
+            let itemDetailsText = '';
+            let preparationTime = 10; // Base baseline timeframe mins
+
+            cart.forEach(item => {
+                itemDetailsText += `\n• ${item.name} (x${item.quantity})`;
+                if(item.category === 'Momos & Snacks' || item.category === 'Burgers & Sandwiches') preparationTime += 4;
+            });
+
+            const totalPayable = document.getElementById('summaryTotal').innerText;
+
+            // Formulate automated SMS mobile template output
+            const smsBody = `Hi ${customerProfile.name},\nYour order for Table ${customerProfile.table} is confirmed!${itemDetailsText}\n\n💰 Total Amount: ${totalPayable}\n⏱️ Est. Timeline: Served fresh at your table in ${preparationTime} mins.\n\nThank you for dining at Tresale Corner Café!`;
+
+            const phone = (customerProfile.phone || '').toString().trim();
+            if (!phone || phone.toLowerCase() === 'n/a') {
+                alert('Please enter a valid mobile number for SMS.');
+                return;
+            }
+
+            const overlay = document.getElementById('smsNotificationOverlay');
+            const content = document.getElementById('smsMessageContent');
+
+            content.innerText = `Sending SMS to ${phone}...\n\n${smsBody}`;
+            overlay.classList.remove('hidden');
+
+            try {
+                // IMPORTANT: Do NOT put SMS provider credentials in frontend.
+                // Create a backend route that forwards this to your SMS provider.
+                // Expected contract: POST /api/send-sms { to: string, message: string }
+                const res = await fetch('/api/send-sms', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ to: phone, message: smsBody })
+                });
+
+                if (!res.ok) {
+                    const txt = await res.text().catch(() => '');
+                    throw new Error(`SMS API failed (${res.status}). ${txt}`);
+                }
+
+                content.innerText = `✅ SMS sent to ${phone}!\n\n${smsBody}`;
+            } catch (err) {
+                content.innerText = `❌ SMS failed to send to ${phone}.\n\n${smsBody}\n\nError: ${err.message}`;
+            }
+            // Open bill after checkout attempt (success or failure)
+            openBillPrintModal();
+        }
+
+        // Payment method state
+        let paymentMethod = 'UPI';
+
+        function setPaymentMethod(method) {
+            paymentMethod = method;
+
+            const upiBtn = document.getElementById('payBtnUPI');
+            const cardBtn = document.getElementById('payBtnCard');
+
+            if (method === 'UPI') {
+                upiBtn.className = "w-full border border-blue-200 bg-blue-50 hover:bg-blue-100 rounded-lg py-2 text-xs font-semibold text-blue-700 flex items-center justify-center space-x-2";
+                cardBtn.className = "w-full border border-gray-200 bg-white hover:bg-gray-50 rounded-lg py-2 text-xs font-semibold text-gray-700 flex items-center justify-center space-x-2";
+            } else {
+                cardBtn.className = "w-full border border-blue-200 bg-blue-50 hover:bg-blue-100 rounded-lg py-2 text-xs font-semibold text-blue-700 flex items-center justify-center space-x-2";
+                upiBtn.className = "w-full border border-gray-200 bg-white hover:bg-gray-50 rounded-lg py-2 text-xs font-semibold text-gray-700 flex items-center justify-center space-x-2";
+            }
+        }
+
+        function openBillPrintModal() {
+            const modal = document.getElementById('billPrintModal');
+            const itemsWrap = document.getElementById('billItemsWrap');
+            const subtotalEl = document.getElementById('billSubtotal');
+            const taxEl = document.getElementById('billTax');
+            const totalEl = document.getElementById('billTotal');
+            const payEl = document.getElementById('billPaymentMethod');
+            const customerEl = document.getElementById('billCustomer');
+            const tableEl = document.getElementById('billTable');
+            const billTimeEl = document.getElementById('billTime');
+
+            const dt = new Date();
+            const timeStr = dt.toLocaleString();
+            billTimeEl.innerText = timeStr;
+
+            customerEl.innerText = customerProfile?.name || 'N/A';
+            tableEl.innerText = customerProfile?.table || 'N/A';
+            payEl.innerText = paymentMethod || 'UPI';
+
+            let subtotal = 0;
+            cart.forEach(item => {
+                subtotal += item.price * item.quantity;
+            });
+            const tax = subtotal * 0.05;
+            const grandTotal = subtotal + tax;
+
+            subtotalEl.innerText = `₹${subtotal.toFixed(2)}`;
+            taxEl.innerText = `₹${tax.toFixed(2)}`;
+            totalEl.innerText = `₹${grandTotal.toFixed(2)}`;
+
+            itemsWrap.innerHTML = '';
+            cart.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'flex justify-between text-xs py-1 border-b border-gray-200 last:border-b-0';
+                const left = document.createElement('div');
+                left.innerText = `${item.name} (x${item.quantity})`;
+                const right = document.createElement('div');
+                right.className = 'font-semibold';
+                right.innerText = `₹${(item.price * item.quantity).toFixed(2)}`;
+                row.appendChild(left);
+                row.appendChild(right);
+                itemsWrap.appendChild(row);
+            });
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeSMSView() {
+            document.getElementById('smsNotificationOverlay').classList.add('hidden');
+            // Cart should clear only after user closes the bill.
+            renderCart();
+        }
+
+
+        function closeBillPrintModal() {
+            document.getElementById('billPrintModal').classList.add('hidden');
+            cart = [];
+            renderCart();
+        }
+
+
+        function printBill() {
+            // Print current bill view
+            window.print();
+        }
+
+
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderMenu();
+        });
+
+        // Initialize view states
+        renderMenu();
+        renderCart();
+    </script>
+</body>
+</html>
